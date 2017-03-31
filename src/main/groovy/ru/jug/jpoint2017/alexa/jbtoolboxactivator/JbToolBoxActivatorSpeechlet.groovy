@@ -12,10 +12,11 @@ import com.amazon.speech.speechlet.SpeechletResponse
 import com.amazon.speech.ui.OutputSpeech
 import com.amazon.speech.ui.PlainTextOutputSpeech
 import com.amazon.speech.ui.Reprompt
+import groovyx.net.http.HttpBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static groovyx.net.http.HttpBuilder.configure
+import static groovyx.net.http.OkHttpBuilder.*
 import static java.lang.System.getenv
 
 
@@ -29,13 +30,16 @@ class JbToolBoxActivatorSpeechlet implements Speechlet {
     final static String HELP_TEXT = 'With Jet Brains toolbox you can start Jet brains i.d.e. tools.'
     final static String DEFAULT_QUESTION = 'Now, which tool do you want me to start?'
     public static final String TOOL = 'Tool'
+    private HttpBuilder httpBuilder
 
 
     @Override
-    void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
-        log.info "onSessionStarted requestId=$request.requestId, sessionId=$session.sessionId"
+    void onSessionStarted(SessionStartedRequest sessionStartedRequest, Session session) throws SpeechletException {
+        log.info "onSessionStarted requestId=$sessionStartedRequest.requestId, sessionId=$session.sessionId"
 
-
+        httpBuilder = configure {
+            request.uri = "${getenv('TOOLBOX_IP')}:5050"
+        }
     }
 
     @Override
@@ -46,15 +50,17 @@ class JbToolBoxActivatorSpeechlet implements Speechlet {
     }
 
     @Override
-    SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
-        log.info "onIntent requestId=$request.requestId, sessionId=$session.sessionId"
-        Intent intent = request.intent
+    SpeechletResponse onIntent(IntentRequest intentRequest, Session session) throws SpeechletException {
+        log.info "onIntent requestId=$intentRequest.requestId, sessionId=$session.sessionId"
+        Intent intent = intentRequest.intent
         switch (intent.name) {
             case 'OpenIntent':
                 def toolName = intent.getSlot(TOOL).value
                 PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech()
                 outputSpeech.text = "Opening $toolName"
-                open(toolName)
+                httpBuilder.post {
+                    request.uri = "/${toolName}"
+                }
                 new SpeechletResponse().newTellResponse(outputSpeech)
                 break
             case 'AMAZON.HelpIntent':
@@ -71,11 +77,6 @@ class JbToolBoxActivatorSpeechlet implements Speechlet {
         }
     }
 
-    void open(String toolName) {
-        configure {
-            request.uri = "${getenv('TOOLBOX_IP')}:5050/$toolName"
-        }.post()
-    }
 
     @Override
     void onSessionEnded(SessionEndedRequest request, Session session) throws SpeechletException {
