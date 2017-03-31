@@ -61,16 +61,14 @@ class JbToolBoxActivatorSpeechlet implements Speechlet {
                 httpBuilder.post {
                     request.uri = "/${toolName}"
                 }
-                new SpeechletResponse().newTellResponse(outputSpeech)
-                break
+                return new SpeechletResponse().newTellResponse(outputSpeech)
             case 'AMAZON.HelpIntent':
-                newAskResponse(HELP_TEXT, DEFAULT_QUESTION)
+                return newAskResponse(HELP_TEXT, DEFAULT_QUESTION)
             case 'AMAZON.StopIntent':
             case 'AMAZON.CancelIntent':
                 PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech()
                 outputSpeech.text = 'Goodbye'
-                new SpeechletResponse().newTellResponse(outputSpeech)
-                break
+                return new SpeechletResponse().newTellResponse(outputSpeech)
             default:
                 throw new SpeechletException('Invalid Intent')
 
