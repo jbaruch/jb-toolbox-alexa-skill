@@ -1,0 +1,4 @@
+OpenIntent open {Tool}
+OpenIntent start {Tool}
+OpenIntent startup {Tool}
+OpenIntent {Tool}

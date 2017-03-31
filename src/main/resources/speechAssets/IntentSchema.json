@@ -1,0 +1,16 @@
+{
+  "intents": [
+    {
+      "intent": "OpenIntent",
+      "slots" : [
+        {
+          "name" : "Tool",
+          "type" : "LIST_OF_TOOLS"
+        }
+      ]
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    }
+  ]
+}
