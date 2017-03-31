@@ -11,7 +11,7 @@ import groovy.transform.InheritConstructors
 @InheritConstructors
 class JbToolBoxActivatorSpeechletRequestStreamHandler extends SpeechletRequestStreamHandler {
 
-    private static final Set<String> supportedApplicationIds = [System.getenv('ARN')]
+    private static final Set<String> supportedApplicationIds = ['arn:aws:lambda:us-east-1:747436124119:function:JetBrainsToolbox']
 
     JbToolBoxActivatorSpeechletRequestStreamHandler() {
         super(new JbToolBoxActivatorSpeechlet(), supportedApplicationIds)
