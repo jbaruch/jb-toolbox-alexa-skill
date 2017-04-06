@@ -9,6 +9,8 @@ repositories {
 dependencies {
     compile(
             'org.codehaus.groovy:groovy:2.4.10',
+            'org.codehaus.groovy:groovy-xml:2.4.10',
+            'org.codehaus.groovy:groovy-json:2.4.10',
             'io.github.http-builder-ng:http-builder-ng-okhttp:0.14.1',
             'com.amazonaws:aws-lambda-java-core:1.1.0',
             'com.amazonaws:aws-lambda-java-events:1.1.0',
@@ -17,8 +19,6 @@ dependencies {
             'org.slf4j:slf4j-api:1.7.10',
             'commons-io:commons-io:2.5',
             'org.apache.commons:commons-lang3:3.5'
-
-
     )
     testCompile 'junit:junit:4.12'
 }

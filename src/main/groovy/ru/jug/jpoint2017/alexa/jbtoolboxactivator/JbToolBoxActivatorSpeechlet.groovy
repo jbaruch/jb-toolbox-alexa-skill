@@ -31,6 +31,7 @@ class JbToolBoxActivatorSpeechlet implements Speechlet {
     final static String DEFAULT_QUESTION = 'Now, which tool do you want me to start?'
     public static final String TOOL = 'Tool'
     private HttpBuilder httpBuilder
+    private List<String> tools
 
 
     @Override
@@ -38,15 +39,16 @@ class JbToolBoxActivatorSpeechlet implements Speechlet {
         log.info "onSessionStarted requestId=$sessionStartedRequest.requestId, sessionId=$session.sessionId"
 
         httpBuilder = configure {
-            request.uri = "${getenv('TOOLBOX_IP')}:5050"
+            request.uri = "http://${getenv('TOOLBOX_IP')}:5050"
         }
+
+        tools = new File(this.class.classLoader.getResource('speechAssets/ListOfTools.txt').toURI()).readLines()
     }
 
     @Override
     SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
         log.info "onLaunch requestId=$request.requestId, sessionId=$session.sessionId"
-
-        newAskResponse('I am Jet brains toolbox and I can start Jet brains tools for you. What tool should I start?', HELP_TEXT + DEFAULT_QUESTION)
+        newAskResponse("I am Jet brains toolbox and I can start Jet brains tools for you. $DEFAULT_QUESTION", HELP_TEXT + DEFAULT_QUESTION)
     }
 
     @Override
@@ -55,15 +57,19 @@ class JbToolBoxActivatorSpeechlet implements Speechlet {
         Intent intent = intentRequest.intent
         switch (intent.name) {
             case 'OpenIntent':
-                def toolName = intent.getSlot(TOOL).value
                 PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech()
-                outputSpeech.text = "Opening $toolName"
-                httpBuilder.post {
-                    request.uri = "/${toolName}"
+                def toolName = intent.getSlot(TOOL).value
+                if (tools.contains(toolName)) {
+                    outputSpeech.text = "Opening $toolName. Goodbye."
+//                    httpBuilder.post {
+//                        request.uri = "/${toolName}"
+//                    }
+                } else {
+                    outputSpeech.text = "Sorry, I can't find a tool named $toolName in the toolbox. Goodbye."
                 }
                 return new SpeechletResponse().newTellResponse(outputSpeech)
             case 'AMAZON.HelpIntent':
-                return newAskResponse(HELP_TEXT, DEFAULT_QUESTION)
+                return newAskResponse("I can open tools like $tools. $DEFAULT_QUESTION", DEFAULT_QUESTION)
             case 'AMAZON.StopIntent':
             case 'AMAZON.CancelIntent':
                 PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech()
